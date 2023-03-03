@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:supermarket_list_app/item.dart';
 
 class Home extends StatelessWidget {
@@ -10,41 +9,23 @@ class Home extends StatelessWidget {
 
   var listOfItems = [].obs;
   TextEditingController controller = TextEditingController();
+  late List<String>? items;
 
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
+  void GetSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    items = prefs.getStringList('items');
+    print(items);
   }
 
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/items.txt');
-  }
-
-  Future<File> writeItems(List items) async {
-    final file = await _localFile;
-
-    // Write the file
-    return file.writeAsString('$items');
-  }
-
-  Future<int> readItems() async {
-    try {
-      final file = await _localFile;
-
-      // Read the file
-      final contents = await file.readAsString();
-      print(contents);
-      return int.parse(contents);
-    } catch (e) {
-      // If encountering an error, return 0
-      return 0;
-    }
+  void Save() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList("items", listOfItems.value as List<String>);
+    print(prefs.getStringList("items"));
   }
 
   @override
   Widget build(BuildContext context) {
+    GetSaved();
     return Scaffold(
       appBar: AppBar(
         title: Text("Supermarket List"),
@@ -66,7 +47,7 @@ class Home extends StatelessWidget {
                       TextButton(
                           onPressed: () async {
                             listOfItems.add(controller.text);
-                            writeItems(listOfItems);
+                            Save();
                             controller.clear();
                             Get.close(0);
                           },
@@ -92,7 +73,6 @@ class Home extends StatelessWidget {
           color: Colors.redAccent,
           iconSize: 38,
           onPressed: () async {
-            readItems();
             // listOfItems.clear();
           },
           icon: const Icon(Icons.delete)),
