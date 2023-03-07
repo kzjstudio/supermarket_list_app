@@ -1,31 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:supermarket_list_app/item.dart';
 
 class Home extends StatelessWidget {
   Home({super.key});
 
-  var listOfItems = [].obs;
+  var listOfItems = []<String>.obs;
   TextEditingController controller = TextEditingController();
   late List<String>? items;
 
-  void GetSaved() async {
-    final prefs = await SharedPreferences.getInstance();
-    items = prefs.getStringList('items');
-    print(items);
-  }
-
-  void Save() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList("items", listOfItems.value as List<String>);
-    print(prefs.getStringList("items"));
-  }
-
   @override
   Widget build(BuildContext context) {
-    GetSaved();
     return Scaffold(
       appBar: AppBar(
         title: Text("Supermarket List"),
@@ -47,9 +33,14 @@ class Home extends StatelessWidget {
                       TextButton(
                           onPressed: () async {
                             listOfItems.add(controller.text);
-                            Save();
-                            controller.clear();
-                            Get.close(0);
+                            final prefs = await SharedPreferences.getInstance()
+                                .then((value) {
+                              value.setStringList(
+                                  "key", listOfItems.value as List<String>);
+                              print("saved");
+                              controller.clear();
+                              Get.close(0);
+                            });
                           },
                           child: Text("Add"))
                     ]);
