@@ -6,46 +6,39 @@ import 'package:supermarket_list_app/item.dart';
 class Home extends StatelessWidget {
   Home({super.key});
 
-  var listOfItems = []<String>.obs;
+  var listOfItems = [].obs;
   TextEditingController controller = TextEditingController();
   late List<String>? items;
+  late List<String> myList;
+
+  void getSavedList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final listToPull = await prefs.getStringList("key");
+    print(listToPull);
+    listOfItems.value = List.from(listToPull as Iterable);
+  }
+
+  void deleteSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    listOfItems.clear();
+    await prefs.remove("key");
+  }
 
   @override
   Widget build(BuildContext context) {
+    getSavedList();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Supermarket List"),
+        title: const Text(
+          "Supermarket List",
+          style: TextStyle(fontSize: 28),
+        ),
         actions: [
           IconButton(
               onPressed: () {
-                Get.defaultDialog(
-                    title: "Add to your list ",
-                    content: TextField(
-                      autofocus: true,
-                      controller: controller,
-                    ),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Get.close(0);
-                          },
-                          child: Text("Cancel")),
-                      TextButton(
-                          onPressed: () async {
-                            listOfItems.add(controller.text);
-                            final prefs = await SharedPreferences.getInstance()
-                                .then((value) {
-                              value.setStringList(
-                                  "key", listOfItems.value as List<String>);
-                              print("saved");
-                              controller.clear();
-                              Get.close(0);
-                            });
-                          },
-                          child: Text("Add"))
-                    ]);
+                deleteSaved();
               },
-              icon: Icon(Icons.add))
+              icon: Icon(Icons.delete))
         ],
       ),
       body: Obx(() => listOfItems.isEmpty
@@ -60,13 +53,40 @@ class Home extends StatelessWidget {
                     children:
                         listOfItems.map((item) => Item(value: item)).toList(),
                   )))),
-      floatingActionButton: IconButton(
-          color: Colors.redAccent,
-          iconSize: 38,
+      floatingActionButton: Align(
+        alignment: Alignment.bottomCenter,
+        child: FloatingActionButton(
+          child: const Icon(Icons.add),
           onPressed: () async {
-            // listOfItems.clear();
+            Get.defaultDialog(
+                title: "Add to your list ",
+                content: TextField(
+                  autofocus: true,
+                  controller: controller,
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Get.close(0);
+                      },
+                      child: const Text("Cancel")),
+                  TextButton(
+                      onPressed: () async {
+                        listOfItems.add(controller.text);
+                        final prefs =
+                            await SharedPreferences.getInstance().then((value) {
+                          myList = List.from(listOfItems);
+                          value.setStringList("key", myList);
+                          print("saved");
+                          controller.clear();
+                          Get.close(0);
+                        });
+                      },
+                      child: Text("Add"))
+                ]);
           },
-          icon: const Icon(Icons.delete)),
+        ),
+      ),
     );
   }
 }
