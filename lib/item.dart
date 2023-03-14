@@ -15,7 +15,7 @@ class Item extends StatelessWidget {
           child: ListTile(
             leading: Text(
               value,
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(fontSize: 25),
             ),
             trailing: Obx(() => Checkbox(
                   value: isChecked.value,
