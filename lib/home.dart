@@ -10,6 +10,7 @@ class Home extends StatelessWidget {
   TextEditingController controller = TextEditingController();
   late List<String>? items;
   late List<String> myList;
+  var isLight = true;
 
   void getSavedList() async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,7 +39,12 @@ class Home extends StatelessWidget {
               onPressed: () {
                 deleteSaved();
               },
-              icon: Icon(Icons.delete))
+              icon: Icon(Icons.delete)),
+          Switch(
+              value: isLight,
+              onChanged: (value) {
+                value = isLight;
+              })
         ],
       ),
       body: Obx(() => listOfItems.isEmpty

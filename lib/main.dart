@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Supermarket list app',
       theme: ThemeData(
           primarySwatch: Colors.blue, textTheme: GoogleFonts.kalamTextTheme()),
